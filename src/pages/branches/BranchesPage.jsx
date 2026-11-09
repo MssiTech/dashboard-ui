@@ -3,9 +3,12 @@ import { BASE_URL, apiFetch } from '../../api/index.js'
 import DownloadButton from '../../components/DownloadButton'
 import PageStatus from '../../components/PageStatus'
 import { downloadWorkbook } from '../../excel'
+import { readCachedDate, writeCachedDate } from '../../lib/date'
 import { usePageTitle } from '../../lib/pageTitle'
 
 const API_URL = `${BASE_URL}/api/monitoring/month/branches/`
+const START_KEY = 'monitor-branches-start'
+const END_KEY = 'monitor-branches-end'
 
 function currentMonthRange() {
   const now = new Date()
@@ -13,6 +16,19 @@ function currentMonthRange() {
   const month = String(now.getMonth() + 1).padStart(2, '0')
   const last = String(new Date(year, now.getMonth() + 1, 0).getDate()).padStart(2, '0')
   return { start: `${year}-${month}-01`, end: `${year}-${month}-${last}` }
+}
+
+function readFilters() {
+  const range = currentMonthRange()
+  return {
+    start: readCachedDate(START_KEY) || range.start,
+    end: readCachedDate(END_KEY) || range.end,
+  }
+}
+
+function writeFilters(next) {
+  writeCachedDate(START_KEY, next.start)
+  writeCachedDate(END_KEY, next.end)
 }
 
 function orderedRange(start, end) {
@@ -40,10 +56,7 @@ export default function BranchesPage() {
   const [rows, setRows] = useState([])
   const [status, setStatus] = useState('loading')
   const [exporting, setExporting] = useState(false)
-  const [filters, setFilters] = useState(() => {
-    const range = currentMonthRange()
-    return { start: range.start, end: range.end }
-  })
+  const [filters, setFilters] = useState(readFilters)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -71,6 +84,10 @@ export default function BranchesPage() {
     return () => controller.abort()
   }, [filters])
 
+  useEffect(() => {
+    writeFilters(filters)
+  }, [filters])
+
   function updateFilter(field, value) {
     setFilters((current) => ({ ...current, [field]: value }))
   }
@@ -92,6 +109,11 @@ export default function BranchesPage() {
         <div>
           <h1>Stasionlar monitoring</h1>
         </div>
+        {status === 'ready' ? (
+          <p className="detail-meta">
+            <span>{rows.length} bo‘lim</span>
+          </p>
+        ) : null}
       </header>
 
       <form className="filters" onSubmit={(event) => event.preventDefault()}>
@@ -129,13 +151,13 @@ export default function BranchesPage() {
 
       <section className="panel">
         <div className="panel-head">
-          <h2>Bo‘limlar</h2>
+          <h2>Ro‘yxat</h2>
           <DownloadButton busy={exporting} disabled={status !== 'ready' || rows.length === 0} onClick={download} />
         </div>
         <PageStatus status={status} empty={rows.length === 0 ? 'Yozuv topilmadi.' : ''} />
         {status === 'ready' && rows.length > 0 ? (
           <div className="table-wrap">
-            <table className="patient-table plan-table branch-table">
+            <table className="patient-table plan-table stations-table">
               <colgroup>
                 <col className="col-idx" />
                 <col className="col-name" />

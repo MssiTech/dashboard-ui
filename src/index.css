@@ -921,6 +921,10 @@ form button:hover {
   cursor: default;
 }
 
+.add-button {
+  --btn-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 4v12M4 10h12'/%3E%3C/svg%3E");
+}
+
 .empty-note {
   color: var(--muted);
 }
@@ -1561,6 +1565,27 @@ tbody tr:hover td {
   grid-column: 1 / -1;
 }
 
+.modal-form textarea {
+  width: 100%;
+  min-height: 88px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--ink);
+  resize: vertical;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.modal-form textarea:focus {
+  outline: 2px solid rgba(15, 110, 86, 0.35);
+  border-color: var(--accent);
+}
+
 .modal-form input,
 .modal-form select {
   width: 100%;
@@ -1680,7 +1705,16 @@ tbody tr:hover td {
 }
 
 .report-table .col-idx {
-  width: 44px;
+  width: 36px;
+}
+
+.report-table th:first-child,
+.report-table td:first-child {
+  width: 36px;
+  min-width: 36px;
+  max-width: 44px;
+  padding-right: 6px;
+  font-variant-numeric: tabular-nums;
 }
 
 .report-table .col-name {
@@ -1696,35 +1730,47 @@ tbody tr:hover td {
 }
 
 .stay-table .col-name {
-  width: 16%;
+  width: 22%;
 }
 
 .stay-table .col-date {
-  width: 9%;
+  width: 10%;
 }
 
 .stay-table .col-text {
-  width: 16%;
+  width: 18%;
 }
 
 .stay-table .col-list {
-  width: 13%;
+  width: 16%;
 }
 
 .stay-table .col-type {
   width: 8%;
 }
 
+.count-table .col-idx {
+  width: 36px;
+}
+
+.count-table th:first-child,
+.count-table td:first-child {
+  width: 36px;
+  min-width: 36px;
+  max-width: 40px;
+  padding-right: 4px;
+}
+
 .count-table .col-name {
-  width: 28%;
+  width: 34%;
 }
 
 .count-table .col-date {
-  width: 11%;
+  width: 12%;
 }
 
 .count-table .col-num {
-  width: 9%;
+  width: 10.5%;
 }
 
 .report-table td.num {
@@ -1879,6 +1925,44 @@ tbody tr:hover td {
 .plan-table .group-head.oy,
 .plan-table .oy-start {
   border-left: 1px solid var(--line);
+}
+
+.monthly-table .col-name {
+  width: 36%;
+}
+
+.monthly-table .col-qabul {
+  width: 12%;
+}
+
+.monthly-table .col-metric {
+  width: 12%;
+}
+
+.monthly-table .name-cell {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.monthly-table .doctor-link {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stations-table .col-name {
+  width: 28%;
+}
+
+.stations-table .col-qabul,
+.stations-table .col-metric {
+  width: 8.5%;
+}
+
+.stations-table .name-cell {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .branch-table .col-name {

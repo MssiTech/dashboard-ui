@@ -4,10 +4,14 @@ import { BASE_URL, apiFetch } from '../../api/index.js'
 import DownloadButton from '../../components/DownloadButton'
 import PageStatus from '../../components/PageStatus'
 import { downloadWorkbook } from '../../excel'
+import { readCachedDate, writeCachedDate } from '../../lib/date'
 import { usePageTitle } from '../../lib/pageTitle'
 
 const API_URL = `${BASE_URL}/api/monitoring/month/doctors/`
 const BRANCHES_URL = `${BASE_URL}/api/monitoring/month/branches/`
+const START_KEY = 'monitor-branch-doctors-start'
+const END_KEY = 'monitor-branch-doctors-end'
+const BRANCH_KEY = 'monitor-branch-doctors-branch'
 
 function currentMonthRange() {
   const now = new Date()
@@ -15,6 +19,23 @@ function currentMonthRange() {
   const month = String(now.getMonth() + 1).padStart(2, '0')
   const last = String(new Date(year, now.getMonth() + 1, 0).getDate()).padStart(2, '0')
   return { start: `${year}-${month}-01`, end: `${year}-${month}-${last}` }
+}
+
+function readFilters() {
+  const range = currentMonthRange()
+  return {
+    branch: localStorage.getItem(BRANCH_KEY) || '',
+    start: readCachedDate(START_KEY) || range.start,
+    end: readCachedDate(END_KEY) || range.end,
+  }
+}
+
+function writeFilters(next) {
+  const branch = String(next.branch || '').trim()
+  if (branch) localStorage.setItem(BRANCH_KEY, branch)
+  else localStorage.removeItem(BRANCH_KEY)
+  writeCachedDate(START_KEY, next.start)
+  writeCachedDate(END_KEY, next.end)
 }
 
 function orderedRange(start, end) {
@@ -67,10 +88,7 @@ export default function BranchDoctorsPage() {
   const [branches, setBranches] = useState([])
   const [status, setStatus] = useState('loading')
   const [exporting, setExporting] = useState(false)
-  const [filters, setFilters] = useState(() => {
-    const range = currentMonthRange()
-    return { branch: '', start: range.start, end: range.end }
-  })
+  const [filters, setFilters] = useState(readFilters)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -115,6 +133,10 @@ export default function BranchDoctorsPage() {
     return () => controller.abort()
   }, [filters])
 
+  useEffect(() => {
+    writeFilters(filters)
+  }, [filters])
+
   function updateFilter(field, value) {
     setFilters((current) => ({ ...current, [field]: value }))
   }
@@ -153,7 +175,10 @@ export default function BranchDoctorsPage() {
               onChange={(event) => updateFilter('branch', event.target.value)}
             >
               <option value="">Barchasi</option>
-              {branches.map((name) => (
+              {(filters.branch && !branches.includes(filters.branch)
+                ? [filters.branch, ...branches]
+                : branches
+              ).map((name) => (
                 <option key={name} value={name}>
                   {name}
                 </option>
